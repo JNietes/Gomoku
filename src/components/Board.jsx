@@ -10,15 +10,15 @@ function Board() {
   console.log(board);
 
   return (
-    <>
+    <div className="board">
       {board.map((row, rowIndex) => (
-        <div key={rowIndex} className="newRow">
+        <div key={rowIndex} className="boardRow">
           {row.map((_, colIndex) => (
-              <Tile key={(rowIndex + ',' + colIndex)} />
+            <Tile key={rowIndex + "," + colIndex} />
           ))}
         </div>
       ))}
-    </>
+    </div>
   );
 }
 

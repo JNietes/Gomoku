@@ -9,5 +9,39 @@
   height: 50px;
   width: 50px;
   border-radius: 50%;
-  border: 1px solid white;
+  background-color: sandybrown;
+  border: 1px solid grey;
+  margin: 2px;
+  padding: 0px;
+  transition: all 0.3s ease-in;
+}
+
+.tile:hover {
+  background-color: grey;
+}
+
+.whiteTile {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  background-color: white;
+  margin: 2px;
+}
+
+.board {
+  position: relative;
+  height: 750px;
+  width: 750px;
+  margin: auto;
+  background-color: sandybrown;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.boardRow {
+  display: flex;
+  justify-content: space-evenly;
+  width: 750px;
+  height: 50px;
 }
