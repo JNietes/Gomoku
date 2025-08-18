@@ -5,7 +5,7 @@
   text-align: center;
 }
 
-.tile {
+.empty {
   height: 50px;
   width: 50px;
   border-radius: 50%;
@@ -16,15 +16,25 @@
   transition: all 0.3s ease-in;
 }
 
-.tile:hover {
+.empty:hover {
   background-color: grey;
 }
 
-.whiteTile {
+.whiteStone {
   height: 50px;
   width: 50px;
   border-radius: 50%;
   background-color: white;
+  border: 1px solid white;
+  margin: 2px;
+}
+
+.blackStone {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  background-color: black;
+  border: 1px solid black;
   margin: 2px;
 }
 

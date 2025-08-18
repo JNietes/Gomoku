@@ -5,7 +5,7 @@ import Board from "./components/Board.jsx";
 function App() {
   return (
     <>
-      <h1>Gomoku</h1>
+      <h1>Gomoku Board</h1>
       <Board />
     </>
   );
