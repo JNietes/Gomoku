@@ -11,7 +11,15 @@ function Tile({
   const row = index.split(",")[0];
   const col = index.split(",")[1];
 
-  let colorClass = "empty";
+  let colorClass = "";
+
+  if (currentTurn == -1) {
+    colorClass = "blackTurn";
+  }
+  
+  if (currentTurn == 1) {
+    colorClass = "whiteTurn";
+  }
 
   if (element == -1) {
     colorClass = "blackStone";
