@@ -5,6 +5,16 @@
   text-align: center;
 }
 
+.deadTile {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  background-color: sandybrown;
+  border: 1px solid grey;
+  margin: 2px;
+  padding: 0px;
+}
+
 .blackTurn {
   height: 50px;
   width: 50px;
