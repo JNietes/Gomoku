@@ -39,7 +39,7 @@ function Tile({
   function newIndexInside(index, delta, size) {
     let inside = false;
     let newIndex = parseInt(index) + parseInt(delta);
-    if (newIndex > 0 && newIndex < size) {
+    if (newIndex >= 0 && newIndex < size) {
       inside = true;
     }
     return inside;
@@ -71,21 +71,25 @@ function Tile({
             newIndexInside(row, rowDelta, size) &&
             newIndexInside(col, colDelta, size)
           ) {
+
             if (matrix[rowPlusDelta][colPlusDelta] == currentTurn) {
               matchingStones++;
+              if (i==1)
+                console.log(matchingStones + " Forwardslash");
             }
 
             // Checks #/8 contiguous tiles then sets count 0
             else {
-              if (matchingStones >= 4) {
+              matchingStones = 0;
+            }
+
+            if (matchingStones >= 4) {
                 console.log(currentColor + " won!");
                 currentTurn = 0;
                 setCurrentTurn(currentTurn);
               }
-              matchingStones = 0;
-            }
           }
-        }
+        }  
       }
 
       // -1: black; 1: white;
