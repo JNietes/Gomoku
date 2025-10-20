@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { loadPyodide } from 'pyodide';
 import Tile from "./Tile";
 
 function Board() {
   const [size, setSize] = useState(13);
   const [currentTurn, setCurrentTurn] = useState(-1);
+  const [pyodideReady, setPyodideReady] = useState(false);
+  const [output, setOutput] = useState('');
 
   // Represents all pieces withing a 4 tile star radius.
   const [winMat, setWinMat] = useState([
@@ -21,26 +24,59 @@ function Board() {
       .map(() => Array(size).fill(0))
   );
 
+  useEffect(() => {
+    async function initializePyodide() {
+      const pyodide = await loadPyodide();
+      window.pyodide = pyodide; // Make pyodide globally accessible if needed
+      setPyodideReady(true);
+
+      // Load and execute your Python file
+      try {
+        const pythonCode = await (await fetch('/Gomoku/src/python/script.py')).text();
+        pyodide.FS.writeFile('/home/pyodide/script.py', pythonCode);
+        const result = pyodide.runPython('import script; script.greet()');
+        setOutput(result);
+      } catch (error) {
+        console.error("Error loading or running Python script:", error);
+        setOutput("Error: " + error.message);
+      }
+    }
+    initializePyodide();
+  }, []);
+
   return (
-    <div className="board">
-      {matrix.map((row, rowIndex) => (
-        <div key={rowIndex} className="boardRow">
-          {row.map((_, colIndex) => (
-            <Tile
-              key={rowIndex + "," + colIndex}
-              size={size}
-              index={rowIndex + "," + colIndex}
-              element={matrix[rowIndex][colIndex]}
-              matrix={matrix}
-              setMatrix={setMatrix}
-              currentTurn={currentTurn}
-              setCurrentTurn={setCurrentTurn}
-              winMat={winMat}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="board">
+        {matrix.map((row, rowIndex) => (
+          <div key={rowIndex} className="boardRow">
+            {row.map((_, colIndex) => (
+              <Tile
+                key={rowIndex + "," + colIndex}
+                size={size}
+                index={rowIndex + "," + colIndex}
+                element={matrix[rowIndex][colIndex]}
+                matrix={matrix}
+                setMatrix={setMatrix}
+                currentTurn={currentTurn}
+                setCurrentTurn={setCurrentTurn}
+                winMat={winMat}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      <div>
+        <h1>Pyodide in React</h1>
+        {pyodideReady ? (
+          <p>Python Output: {output}</p>
+        ) : (
+          <p>Loading Pyodide...</p>
+        )}
+      </div>
+    </>
+    
+    
+    
   );
 }
 

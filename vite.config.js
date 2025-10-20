@@ -26,7 +26,6 @@ export function viteStaticCopyPyodide() {
 // https://vite.dev/config/
 export default defineConfig({
   optimizeDeps: { exclude: ["pyodide"] },
-  plugins: [viteStaticCopyPyodide()],
-  plugins: [react()],
+  plugins: [viteStaticCopyPyodide(), react()],
   base: "/Gomoku"
 })
