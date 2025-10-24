@@ -41,12 +41,12 @@ function Board() {
       // Converts script.py to string that is passed into the Pyodide filesystem with the same name
       try {
         console.log("Fetching Python script...");
-        const pythonCode = await (await fetch('/Gomoku/python/script.py')).text();
+        const pythonCode = await (await fetch('/Gomoku/src/python/script.py')).text();
         console.log("Python script fetched successfully");
         pyodide.FS.writeFile('/home/pyodide/script.py', pythonCode);
 
         console.log("Printing board:");
-        const result = await pyodide.runPython('import script; script.print_matrix(matrix)');
+        const result = await pyodide.runPythonAsync('import script; script.print_matrix(matrix)');
         console.log(result);
         setOutput(result);
       } 
