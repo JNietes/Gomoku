@@ -7,7 +7,7 @@ function Board() {
   const [currentTurn, setCurrentTurn] = useState(-1);
   const [pyodideReady, setPyodideReady] = useState(false);
   const [output, setOutput] = useState('');
-
+  
   // Represents all pieces withing a 4 tile star radius.
   const [winMat, setWinMat] = useState([
     [[-4, -4], [-3, -3], [-2, -2], [-1, -1], [1, 1], [2, 2], [3, 3], [4, 4]], // \
@@ -26,23 +26,38 @@ function Board() {
 
   useEffect(() => {
     async function initializePyodide() {
-      const pyodide = await loadPyodide();
+      const pyodide = await loadPyodide({
+        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.28.2/full/"
+      })
+      
       window.pyodide = pyodide; // Make pyodide globally accessible if needed
+      
+      await pyodide.loadPackage("numpy");
+      await pyodide.globals.set('matrix', matrix);
+      await pyodide.globals.set('size', size);
+      
       setPyodideReady(true);
 
-      // Load and execute your Python file
+      // Converts script.py to string that is passed into the Pyodide filesystem with the same name
       try {
-        const pythonCode = await (await fetch('/Gomoku/src/python/script.py')).text();
+        console.log("Fetching Python script...");
+        const pythonCode = await (await fetch('/Gomoku/python/script.py')).text();
+        console.log("Python script fetched successfully");
         pyodide.FS.writeFile('/home/pyodide/script.py', pythonCode);
-        const result = pyodide.runPython('import script; script.greet()');
+
+        console.log("Printing board:");
+        const result = await pyodide.runPython('import script; script.print_matrix(matrix)');
+        console.log(result);
         setOutput(result);
-      } catch (error) {
+      } 
+      catch (error) {
         console.error("Error loading or running Python script:", error);
         setOutput("Error: " + error.message);
       }
     }
+    
     initializePyodide();
-  }, []);
+  }, []); // Remove dependencies to prevent infinite reloads
 
   return (
     <>
@@ -65,18 +80,7 @@ function Board() {
           </div>
         ))}
       </div>
-      <div>
-        <h1>Pyodide in React</h1>
-        {pyodideReady ? (
-          <p>Python Output: {output}</p>
-        ) : (
-          <p>Loading Pyodide...</p>
-        )}
-      </div>
     </>
-    
-    
-    
   );
 }
 
