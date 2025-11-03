@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { loadPyodide } from 'pyodide';
 import Tile from "./Tile";
 
-function Board() {
+function Board({
+  currentTurn,
+  setCurrentTurn
+  }){
+
   const [size, setSize] = useState(13);
-  const [currentTurn, setCurrentTurn] = useState(-1);
   const [pyodideReady, setPyodideReady] = useState(false);
   const [output, setOutput] = useState('');
   

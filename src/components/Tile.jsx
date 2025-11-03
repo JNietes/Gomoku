@@ -7,7 +7,8 @@ function Tile({
   currentTurn,
   setCurrentTurn,
   winMat,
-}) {
+  }){
+    
   const row = index.split(",")[0];
   const col = index.split(",")[1];
 
@@ -74,8 +75,6 @@ function Tile({
 
             if (matrix[rowPlusDelta][colPlusDelta] == currentTurn) {
               matchingStones++;
-              if (i==1)
-                console.log(matchingStones + " Forwardslash");
             }
 
             // Checks #/8 contiguous tiles then sets count 0
@@ -85,7 +84,7 @@ function Tile({
 
             if (matchingStones >= 4) {
                 console.log(currentColor + " won!");
-                currentTurn = 0;
+                currentTurn = 0; // No one's turn so game stops
                 setCurrentTurn(currentTurn);
               }
           }
