@@ -1,21 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { viteStaticCopy } from "vite-plugin-static-copy";
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export function viteStaticCopyPyodide() {
   return viteStaticCopy({
     targets: [
       {
-        src: "node_modules/pyodide/*",
-        dest: "assets",
-      },
-    ],
-  });
+        src: 'node_modules/pyodide/**',   // copy full tree
+        dest: 'assets/pyodide'            // end result: dist/assets/pyodide/...
+      }
+    ]
+  })
 }
 
-// https://vite.dev/config/
 export default defineConfig({
-  optimizeDeps: { exclude: ["pyodide"] },
+  optimizeDeps: { exclude: ['pyodide'] },
   plugins: [viteStaticCopyPyodide(), react()],
-  base: "/Gomoku"
+  base: '/Gomoku/'
 })

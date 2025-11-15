@@ -44,7 +44,7 @@ function Board({
       // Converts script.py to string that is passed into the Pyodide filesystem with the same name
       try {
         console.log("Fetching Python script...");
-        const pythonCode = await (await fetch('/Gomoku/src/python/script.py')).text();
+        const pythonCode = await (await fetch('/Gomoku/public/python/script.py')).text();
         console.log("Python script fetched successfully");
         pyodide.FS.writeFile('/home/pyodide/script.py', pythonCode);
 
