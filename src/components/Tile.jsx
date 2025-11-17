@@ -93,6 +93,9 @@ function Tile({
         }
         setMatrix(copy);
         setShouldPrintBoard(true);
+        
+        // -1: black; 1: white;
+        setCurrentTurn(-currentTurn);
       }
 
       // Detect matching stones in 4 star raduis.
@@ -127,9 +130,6 @@ function Tile({
           }
         }  
       }
-
-      // -1: black; 1: white;
-      setCurrentTurn(-currentTurn);
     }
   }
 
