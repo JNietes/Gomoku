@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 function Tile({
   index,
   size,
@@ -7,7 +9,10 @@ function Tile({
   currentTurn,
   setCurrentTurn,
   winMat,
+  pyodideReady
   }){
+
+  const [shouldPrintBoard, setShouldPrintBoard] = useState(false);
     
   const row = index.split(",")[0];
   const col = index.split(",")[1];
@@ -46,8 +51,39 @@ function Tile({
     return inside;
   }
 
+    useEffect(() => {
+    async function printBoard() {
+
+      // Converts script.py to string that is passed into the Pyodide filesystem with the same name
+      if (!pyodideReady) {
+        console.log("pyodide not ready");
+        return;
+      }
+
+      try {
+        const base = import.meta.env.BASE_URL || '/';
+        const scriptUrl = `${base}python/script.py`; // if you placed it at public/python/script.py
+        const resp = await fetch(scriptUrl);
+        if (!resp.ok) throw new Error(`Failed to fetch ${scriptUrl}: ${resp.status}`);
+        const pythonCode = await resp.text();
+        pyodide.FS.writeFile('/home/pyodide/script.py', pythonCode);
+        console.log("Fetching Python script...");
+
+        console.log("Printing board:");
+        const result = await pyodide.runPythonAsync('import script; script.print_matrix(matrix)');
+        console.log(result);
+      } 
+      catch (error) {
+        console.error("Error loading or running Python script:", error);
+      }
+    }
+    
+    printBoard();
+    setShouldPrintBoard(false);
+  }, [shouldPrintBoard]); // Remove dependencies to prevent infinite reloads
+
   function handleClick() {
-    if (currentTurn != 0) {
+    if (currentTurn != 0 && pyodideReady) {
       if (matrix[row][col] == 0) {
         let copy = Array.from(matrix);
         if (currentTurn == -1) {
@@ -56,6 +92,7 @@ function Tile({
           copy[row][col] = 1;
         }
         setMatrix(copy);
+        setShouldPrintBoard(true);
       }
 
       // Detect matching stones in 4 star raduis.
