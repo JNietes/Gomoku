@@ -9,10 +9,13 @@ function Tile({
   currentTurn,
   setCurrentTurn,
   winMat,
-  pyodideReady
+  pyodideReady,
+  gameRunning,
+  setGameRunning
   }){
 
   const [shouldPrintBoard, setShouldPrintBoard] = useState(false);
+  const [shouldPlaceTile, setShouldPlaceTile] = useState(false);
     
   const row = index.split(",")[0];
   const col = index.split(",")[1];
@@ -30,7 +33,7 @@ function Tile({
     currentColor = "White";
   }
 
-  if (currentTurn == 0) {
+  if (!gameRunning) {
     colorClass = "deadTile"; // Dead, as in not animated
   }
 
@@ -51,50 +54,44 @@ function Tile({
     return inside;
   }
 
-    useEffect(() => {
+  useEffect(() => {
     async function printBoard() {
+      if (!pyodideReady) return;
 
-      // Converts script.py to string that is passed into the Pyodide filesystem with the same name
-      if (!pyodideReady) {
-        console.log("pyodide not ready");
-        return;
-      }
-
-      try {
-        const base = import.meta.env.BASE_URL || '/';
-        const scriptUrl = `${base}python/script.py`; // if you placed it at public/python/script.py
-        const resp = await fetch(scriptUrl);
-        if (!resp.ok) throw new Error(`Failed to fetch ${scriptUrl}: ${resp.status}`);
-        const pythonCode = await resp.text();
-        pyodide.FS.writeFile('/home/pyodide/script.py', pythonCode);
-        console.log("Fetching Python script...");
-
-        console.log("Printing board:");
-        const result = await pyodide.runPythonAsync('import script; script.print_matrix(matrix)');
-        console.log(result);
-      } 
-      catch (error) {
-        console.error("Error loading or running Python script:", error);
-      }
+      console.log("Printing board:");
+      const result = await pyodide.runPythonAsync('script.print_matrix(matrix)');
+      console.log(result);
     }
-    
     printBoard();
     setShouldPrintBoard(false);
-  }, [shouldPrintBoard]); // Remove dependencies to prevent infinite reloads
+  }, [shouldPrintBoard]);
+
+  useEffect(() => {
+    async function placeTile() {
+      if (!pyodideReady) return;
+      
+      await pyodide.globals.set('color_int', parseInt(-currentTurn));
+      await pyodide.globals.set('row', parseInt(row));
+      await pyodide.globals.set('col', parseInt(col));
+
+      const newMatrix = await pyodide.runPythonAsync('script.place_tile(color_int, matrix, row, col)');
+
+      setMatrix(newMatrix); // Updating matrix in react useState
+      await pyodide.globals.set('matrix', matrix); // Updating the matrix in pyodide instance
+    }
+    placeTile();
+    setShouldPlaceTile(false);
+  }, [shouldPlaceTile]);
 
   function handleClick() {
-    if (currentTurn != 0 && pyodideReady) {
+    if (gameRunning && pyodideReady) {
       if (matrix[row][col] == 0) {
-        let copy = Array.from(matrix);
-        if (currentTurn == -1) {
-          copy[row][col] = -1;
-        } else {
-          copy[row][col] = 1;
-        }
-        setMatrix(copy);
+        setShouldPlaceTile(true);
+        setCurrentTurn(-currentTurn); // Swap turns after tile placed
+
         setShouldPrintBoard(true);
       }
-
+      
       // Detect matching stones in 4 star raduis.
       let matchingStones = 0;
       for (let i = 0; i < winMat.length; i++) {
@@ -120,16 +117,13 @@ function Tile({
             }
 
             if (matchingStones >= 4) {
-                console.log(currentColor + " won!");
-                currentTurn = 0; // No one's turn so game stops
-                setCurrentTurn(currentTurn);
-              }
+              console.log(currentColor + " won!");
+              setGameRunning(false);
+              break;
+            }
           }
         }  
       }
-
-      // -1: black; 1: white;
-      setCurrentTurn(-currentTurn);
     }
   }
 

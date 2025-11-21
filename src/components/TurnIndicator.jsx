@@ -1,6 +1,7 @@
 function TurnIndicator({
   currentTurn,
-  pyodideReady
+  pyodideReady,
+  gameRunning
   }){
 
   let turnString = "";
@@ -15,8 +16,14 @@ function TurnIndicator({
     else if (currentTurn == 1) {
       turnString = "White's Turn"
     }
-    else if (currentTurn == 0) {
-      turnString = "Game Finished"
+  }
+
+  if (!gameRunning) {
+    if (currentTurn == 1) {
+      turnString = "Black Won!"
+    }
+    else if (currentTurn == -1) {
+      turnString = "White Won!"
     }
   }
   

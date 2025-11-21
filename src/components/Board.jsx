@@ -7,10 +7,10 @@ function Board({
   size,
   matrix,
   setMatrix,
-  pyodideReady
+  pyodideReady,
+  gameRunning,
+  setGameRunning
   }){
-
-  const [output, setOutput] = useState('');
   
   // Represents all pieces withing a 4 tile star radius.
   const [winMat, setWinMat] = useState([
@@ -23,6 +23,8 @@ function Board({
   return (
     <>
       <div className="board">
+
+        {/* Storing the indexes of the tiles by mapping x,y coordinates to a react key*/}
         {matrix.map((row, rowIndex) => (
           <div key={rowIndex} className="boardRow">
             {row.map((_, colIndex) => (
@@ -37,6 +39,8 @@ function Board({
                 setCurrentTurn={setCurrentTurn}
                 winMat={winMat}
                 pyodideReady={pyodideReady}
+                gameRunning={gameRunning}
+                setGameRunning={setGameRunning}
               />
             ))}
           </div>
