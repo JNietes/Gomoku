@@ -90,6 +90,9 @@ function Tile({
         setCurrentTurn(-currentTurn); // Swap turns after tile placed
 
         setShouldPrintBoard(true);
+        
+        // -1: black; 1: white;
+        setCurrentTurn(-currentTurn);
       }
       
       // Detect matching stones in 4 star raduis.
