@@ -6,7 +6,7 @@ import "./App.css";
 function App() {
   const [gameRunning, setGameRunning] = useState(false);
   const [currentTurn, setCurrentTurn] = useState(0);
-  const [size, setSize] = useState(13);
+  const [size, setSize] = useState(15);
   const [pyodideReady, setPyodideReady] = useState(false);
 
   // Stores the stones placed on the board.
@@ -50,7 +50,7 @@ function App() {
 
   return (
     <>
-      <h1>Gomoku Board</h1>
+      <h1 class="title">Gomoku Board</h1>
       <TurnIndicator currentTurn={currentTurn} pyodideReady={pyodideReady} gameRunning={gameRunning}/>
       <Board 
         currentTurn={currentTurn} 

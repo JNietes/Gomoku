@@ -70,14 +70,15 @@ function Tile({
     async function placeTile() {
       if (!pyodideReady) return;
       
-      await pyodide.globals.set('color_int', parseInt(-currentTurn));
+      await pyodide.globals.set('color_int', parseInt(currentTurn));
       await pyodide.globals.set('row', parseInt(row));
       await pyodide.globals.set('col', parseInt(col));
 
       const newMatrix = await pyodide.runPythonAsync('script.place_tile(color_int, matrix, row, col)');
 
+      await pyodide.globals.set('matrix', newMatrix); // Updating the matrix in pyodide instance
       setMatrix(newMatrix); // Updating matrix in react useState
-      await pyodide.globals.set('matrix', matrix); // Updating the matrix in pyodide instance
+      setCurrentTurn(-currentTurn); // Swap turns after tile placed
     }
     placeTile();
     setShouldPlaceTile(false);
@@ -87,12 +88,9 @@ function Tile({
     if (gameRunning && pyodideReady) {
       if (matrix[row][col] == 0) {
         setShouldPlaceTile(true);
-        setCurrentTurn(-currentTurn); // Swap turns after tile placed
+        
 
         setShouldPrintBoard(true);
-        
-        // -1: black; 1: white;
-        setCurrentTurn(-currentTurn);
       }
       
       // Detect matching stones in 4 star raduis.
