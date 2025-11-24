@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import {Board, TurnIndicator} from "./components";
+import {Board, TurnIndicator, ResetButton} from "./components";
 import { loadPyodide } from 'pyodide';
 import "./App.css";
 
@@ -51,17 +51,30 @@ function App() {
   return (
     <>
       <h1 className="title">Gomoku Board</h1>
-      <TurnIndicator currentTurn={currentTurn} pyodideReady={pyodideReady} gameRunning={gameRunning}/>
-      <Board 
-        currentTurn={currentTurn} 
-        setCurrentTurn={setCurrentTurn}
-        size={size}
-        matrix={matrix}
-        setMatrix={setMatrix}
-        pyodideReady={pyodideReady}
-        gameRunning={gameRunning}
-        setGameRunning={setGameRunning}
-        />
+      <div className="boardContainer"> 
+        <TurnIndicator 
+          currentTurn={currentTurn} 
+          pyodideReady={pyodideReady} 
+          gameRunning={gameRunning}/>
+        <ResetButton 
+          size={size} 
+          setMatrix={setMatrix} 
+          pyodideReady={pyodideReady} 
+          gameRunning={gameRunning} 
+          setGameRunning={setGameRunning} 
+          setCurrentTurn={setCurrentTurn}/>
+        <Board 
+          currentTurn={currentTurn} 
+          setCurrentTurn={setCurrentTurn}
+          size={size}
+          matrix={matrix}
+          setMatrix={setMatrix}
+          pyodideReady={pyodideReady}
+          gameRunning={gameRunning}
+          setGameRunning={setGameRunning}
+          />
+      </div>
+      
     </>
   );
 }
