@@ -40,7 +40,6 @@ def detect_winner(color_int, matrix, row, col):
       if new_index_inside(row, row_delta, size) and new_index_inside(col, col_delta, size):
         if int(matrix[row_plus_delta][col_plus_delta]) == int(color_int):
           matching_stones += 1
-          print(matching_stones)
         else:
           matching_stones = 0
         
