@@ -17,6 +17,7 @@ function Tile({
   const [shouldPrintBoard, setShouldPrintBoard] = useState(false);
   const [shouldPlaceTile, setShouldPlaceTile] = useState(false);
     
+  // These are the coordinates of a node that is clicked
   const row = index.split(",")[0];
   const col = index.split(",")[1];
 
@@ -43,15 +44,6 @@ function Tile({
 
   if (element == 1) {
     colorClass = "whiteStone";
-  }
-
-  function newIndexInside(index, delta, size) {
-    let inside = false;
-    let newIndex = parseInt(index) + parseInt(delta);
-    if (newIndex >= 0 && newIndex < size) {
-      inside = true;
-    }
-    return inside;
   }
 
   useEffect(() => {
@@ -81,6 +73,17 @@ function Tile({
       setCurrentTurn(-currentTurn); // Swap turns after tile placed
     }
     placeTile();
+
+    async function detectWin() {
+      if (!pyodideReady) return;
+
+      const someoneWon = await pyodide.runPythonAsync('script.detect_winner(color_int, matrix, row, col)')
+      if (someoneWon) {
+        setGameRunning(false);
+      }
+    }
+    detectWin();
+
     setShouldPlaceTile(false);
   }, [shouldPlaceTile]);
 
@@ -88,42 +91,7 @@ function Tile({
     if (gameRunning && pyodideReady) {
       if (matrix[row][col] == 0) {
         setShouldPlaceTile(true);
-        
-
         setShouldPrintBoard(true);
-      }
-      
-      // Detect matching stones in 4 star raduis.
-      let matchingStones = 0;
-      for (let i = 0; i < winMat.length; i++) {
-        matchingStones = 0;
-        for (let j = 0; j < winMat[0].length; j++) {
-          let rowDelta = winMat[i][j][0];
-          let colDelta = winMat[i][j][1];
-          let rowPlusDelta = parseInt(row) + parseInt(rowDelta);
-          let colPlusDelta = parseInt(col) + parseInt(colDelta);
-
-          if (
-            newIndexInside(row, rowDelta, size) &&
-            newIndexInside(col, colDelta, size)
-          ) {
-
-            if (matrix[rowPlusDelta][colPlusDelta] == currentTurn) {
-              matchingStones++;
-            }
-
-            // Checks #/8 contiguous tiles then sets count 0
-            else {
-              matchingStones = 0;
-            }
-
-            if (matchingStones >= 4) {
-              console.log(currentColor + " won!");
-              setGameRunning(false);
-              break;
-            }
-          }
-        }  
       }
     }
   }

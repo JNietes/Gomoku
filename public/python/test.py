@@ -1,4 +1,10 @@
-import numpy as np
+import script
+
+# These are set to the coordinates of a tile that is clicked
+row = 7
+col = 8
+
+color_int = -1
 
 # Represents all pieces withing a 4 tile star radius
 win_matrix = [
@@ -7,25 +13,25 @@ win_matrix = [
   [[-4, 0], [-3, 0], [-2, 0], [-1, 0], [1, 0], [2, 0], [3, 0], [4, 0]],     
   [[0, -4], [0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3], [0, 4]]]     
 
-def print_matrix(matrix):
-  string = ""
-  mat = np.array(matrix)
-  for row in range(mat.shape[0]):
-    string += "["
-    for col in range(mat.shape[1]):
-      string += " " + str(mat[row][col])
-      if col != mat.shape[1]-1:
-        string += ","
-    string += "]\n"
-  return string
+board = [
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+]
 
-def place_tile(color_int, matrix, row, col):
-  copy = np.array(matrix)
-  if (matrix[row][col] == 0): 
-    copy[row][col] = color_int
-  return copy.tolist()
-
-def detect_winner(color_int, matrix, row, col):
+def detect_winner(matrix):
   size = len(matrix)
   winner = False
   matching_stones = 0
@@ -38,6 +44,8 @@ def detect_winner(color_int, matrix, row, col):
       col_plus_delta = int(col) + int(col_delta)
 
       if new_index_inside(row, row_delta, size) and new_index_inside(col, col_delta, size):
+        print("row: " + str(i) + " " + str(matrix[row_plus_delta][col_plus_delta]))
+        print(int(color_int))
         if int(matrix[row_plus_delta][col_plus_delta]) == int(color_int):
           matching_stones += 1
           print(matching_stones)
@@ -55,3 +63,5 @@ def new_index_inside(index, delta, size):
   if (new_index >= 0 and new_index < size):
     inside = True
   return inside
+
+print(detect_winner(board))

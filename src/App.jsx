@@ -50,7 +50,7 @@ function App() {
 
   return (
     <>
-      <h1 class="title">Gomoku Board</h1>
+      <h1 className="title">Gomoku Board</h1>
       <TurnIndicator currentTurn={currentTurn} pyodideReady={pyodideReady} gameRunning={gameRunning}/>
       <Board 
         currentTurn={currentTurn} 

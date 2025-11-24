@@ -29,7 +29,7 @@ function TurnIndicator({
   
   return (
     <>
-      <h1 class="turnIndicator">{turnString}</h1>
+      <h1 className="turnIndicator">{turnString}</h1>
     </>
   )
 }
