@@ -141,7 +141,29 @@
   margin-bottom: 5px;
 }
 
-.resetButton {
-  position: top;
+.menu {
   margin-bottom: 30px;
+}
+
+.resetButton {
+  margin-left: 5px;
+  margin-right: 5px;
+  border: solid 1px black;
+}
+
+.resetButton:active {
+  background-color: #4CAF50; /* Green for active state */
+  color: white;
+}
+
+.toggle-button {
+  margin-left: 5px;
+  margin-right: 5px;
+  border: solid 1px black;
+}
+
+.toggle-button.active {
+  background-color: #4CAF50; /* Green for active state */
+  color: white;
+  border: solid 1px black;
 }

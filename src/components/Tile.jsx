@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 
 function Tile({
   index,
-  size,
   element,
   matrix,
   setMatrix,
   currentTurn,
   setCurrentTurn,
-  winMat,
   pyodideReady,
   gameRunning,
   setGameRunning

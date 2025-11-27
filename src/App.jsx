@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import {Board, TurnIndicator, ResetButton} from "./components";
+import {Board, TurnIndicator, ResetButton, ToggleMoveGenerator} from "./components";
 import { loadPyodide } from 'pyodide';
 import "./App.css";
 
@@ -8,6 +8,7 @@ function App() {
   const [currentTurn, setCurrentTurn] = useState(0);
   const [size, setSize] = useState(15);
   const [pyodideReady, setPyodideReady] = useState(false);
+  const [generatingMoves, setGeneratingMoves] = useState(false);
 
   // Stores the stones placed on the board.
   // 0: none; -1: black; 1: white;
@@ -56,13 +57,19 @@ function App() {
           currentTurn={currentTurn} 
           pyodideReady={pyodideReady} 
           gameRunning={gameRunning}/>
-        <ResetButton 
-          size={size} 
-          setMatrix={setMatrix} 
-          pyodideReady={pyodideReady} 
-          gameRunning={gameRunning} 
-          setGameRunning={setGameRunning} 
-          setCurrentTurn={setCurrentTurn}/>
+          <div className="menu">
+            <ResetButton 
+              size={size} 
+              setMatrix={setMatrix} 
+              pyodideReady={pyodideReady} 
+              gameRunning={gameRunning} 
+              setGameRunning={setGameRunning} 
+              setCurrentTurn={setCurrentTurn}/>
+            <ToggleMoveGenerator
+              generatingMoves={generatingMoves}
+              setGeneratingMoves={setGeneratingMoves}
+            />
+          </div>  
         <Board 
           currentTurn={currentTurn} 
           setCurrentTurn={setCurrentTurn}
