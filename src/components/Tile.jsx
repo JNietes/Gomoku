@@ -9,11 +9,9 @@ function Tile({
   setCurrentTurn,
   pyodideReady,
   gameRunning,
-  setGameRunning
+  setGameRunning,
+  generatingMoves
   }){
-
-  const [shouldPrintBoard, setShouldPrintBoard] = useState(false);
-  const [shouldPlaceTile, setShouldPlaceTile] = useState(false);
     
   // These are the coordinates of a node that is clicked
   const row = index.split(",")[0];
@@ -44,52 +42,73 @@ function Tile({
     colorClass = "whiteStone";
   }
 
-  useEffect(() => {
-    async function printBoard() {
-      if (!pyodideReady) return;
+  async function printBoard() {
+    if (!pyodideReady) return;
 
-      console.log("Printing board:");
-      const result = await pyodide.runPythonAsync('script.print_matrix(matrix)');
-      console.log(result);
-    }
-    printBoard();
-    setShouldPrintBoard(false);
-  }, [shouldPrintBoard]);
+    console.log("Printing board:");
+    const result = await pyodide.runPythonAsync('script.print_matrix(matrix)');
+    console.log(result);
+  }
 
-  useEffect(() => {
-    async function placeTile() {
-      if (!pyodideReady) return;
-      
-      await pyodide.globals.set('color_int', parseInt(currentTurn));
-      await pyodide.globals.set('row', parseInt(row));
-      await pyodide.globals.set('col', parseInt(col));
+  async function detectWin() {
+    if (!pyodideReady) return;
+
+    const someoneWon = await pyodide.runPythonAsync('script.detect_winner(color_int, matrix, row, col)')
+    return !!someoneWon;
+  }
+
+  async function placeTile() {
+    if (!pyodideReady) return;
+    
+    await pyodide.globals.set('color_int', parseInt(currentTurn));
+    await pyodide.globals.set('row', parseInt(row));
+    await pyodide.globals.set('col', parseInt(col));
+
+    const newMatrix = await pyodide.runPythonAsync('script.place_tile(color_int, matrix, row, col)');
+
+    await pyodide.globals.set('matrix', newMatrix); // Updating the matrix in pyodide instance
+    setMatrix(newMatrix); // Updating matrix in react useState
+  }
+
+  async function randomOpponentPlacement() {
+    console.log(generatingMoves)
+      const randRow = await pyodide.runPythonAsync('import random; random.randint(0, len(matrix)-1)');
+      const randCol = await pyodide.runPythonAsync('random.randint(0, len(matrix)-1)');
+
+      await pyodide.globals.set('color_int', parseInt(-currentTurn));
+      await pyodide.globals.set('row', parseInt(randRow));
+      await pyodide.globals.set('col', parseInt(randCol));
 
       const newMatrix = await pyodide.runPythonAsync('script.place_tile(color_int, matrix, row, col)');
 
       await pyodide.globals.set('matrix', newMatrix); // Updating the matrix in pyodide instance
       setMatrix(newMatrix); // Updating matrix in react useState
-      setCurrentTurn(-currentTurn); // Swap turns after tile placed
-    }
-    placeTile();
+  }
 
-    async function detectWin() {
-      if (!pyodideReady) return;
-
-      const someoneWon = await pyodide.runPythonAsync('script.detect_winner(color_int, matrix, row, col)')
-      if (someoneWon) {
-        setGameRunning(false);
-      }
-    }
-    detectWin();
-
-    setShouldPlaceTile(false);
-  }, [shouldPlaceTile]);
-
-  function handleClick() {
+  async function handleClick() {
     if (gameRunning && pyodideReady) {
       if (matrix[row][col] == 0) {
-        setShouldPlaceTile(true);
-        setShouldPrintBoard(true);
+
+        await placeTile();
+        
+        const playerWon = await detectWin();
+        if (playerWon) {
+          setGameRunning(false)
+          return; // To not place opponent tile after game is won
+        }
+
+        if (generatingMoves) {
+          await randomOpponentPlacement();
+
+          const opponentWon = await detectWin();
+          if (opponentWon) {
+            setGameRunning(false)
+          }
+        } else { // Swap turns when not generating moves
+          setCurrentTurn(-currentTurn);
+        }
+        
+        await printBoard();
       }
     }
   }

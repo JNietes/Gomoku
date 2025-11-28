@@ -4,12 +4,12 @@ import Tile from "./Tile";
 function Board({
   currentTurn,
   setCurrentTurn,
-  size,
   matrix,
   setMatrix,
   pyodideReady,
   gameRunning,
-  setGameRunning
+  setGameRunning,
+  generatingMoves
   }){
   
   return (
@@ -31,6 +31,7 @@ function Board({
                 pyodideReady={pyodideReady}
                 gameRunning={gameRunning}
                 setGameRunning={setGameRunning}
+                generatingMoves={generatingMoves}
               />
             ))}
           </div>

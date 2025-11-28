@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 # Represents all pieces withing a 4 tile star radius
 win_matrix = [

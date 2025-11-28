@@ -79,6 +79,7 @@ function App() {
           pyodideReady={pyodideReady}
           gameRunning={gameRunning}
           setGameRunning={setGameRunning}
+          generatingMoves={generatingMoves}
           />
       </div>
       
