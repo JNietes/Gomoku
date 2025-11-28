@@ -72,8 +72,15 @@ function Tile({
 
   async function randomOpponentPlacement() {
     console.log(generatingMoves)
-      const randRow = await pyodide.runPythonAsync('import random; random.randint(0, len(matrix)-1)');
-      const randCol = await pyodide.runPythonAsync('random.randint(0, len(matrix)-1)');
+
+
+      let randRow = await pyodide.runPythonAsync('import random; random.randint(0, len(matrix)-1)');
+      let randCol = await pyodide.runPythonAsync('random.randint(0, len(matrix)-1)');
+
+      while (matrix[randRow][randCol] != 0) {
+        randRow = await pyodide.runPythonAsync('import random; random.randint(0, len(matrix)-1)');
+        randCol = await pyodide.runPythonAsync('random.randint(0, len(matrix)-1)');
+      } 
 
       await pyodide.globals.set('color_int', parseInt(-currentTurn));
       await pyodide.globals.set('row', parseInt(randRow));
@@ -102,6 +109,7 @@ function Tile({
 
           const opponentWon = await detectWin();
           if (opponentWon) {
+            setCurrentTurn(-currentTurn);
             setGameRunning(false)
           }
         } else { // Swap turns when not generating moves
