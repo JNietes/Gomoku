@@ -46,14 +46,14 @@ function Tile({
     if (!pyodideReady) return;
 
     console.log("Printing board:");
-    const result = await pyodide.runPythonAsync('script.print_matrix(matrix)');
+    const result = await pyodide.runPythonAsync('script.print_matrix(current_board.get_board())');
     console.log(result);
   }
 
   async function detectWin() {
     if (!pyodideReady) return;
 
-    const someoneWon = await pyodide.runPythonAsync('script.detect_winner(color_int, matrix, row, col)')
+    const someoneWon = await pyodide.runPythonAsync('current_board.detect_winner(color_int, row, col)')
     return !!someoneWon;
   }
 
@@ -64,15 +64,13 @@ function Tile({
     await pyodide.globals.set('row', parseInt(row));
     await pyodide.globals.set('col', parseInt(col));
 
-    const newMatrix = await pyodide.runPythonAsync('script.place_tile(color_int, matrix, row, col)');
+    const newMatrix = await pyodide.runPythonAsync('current_board.place_tile(color_int, row, col)');
 
-    await pyodide.globals.set('matrix', newMatrix); // Updating the matrix in pyodide instance
+    await pyodide.globals.set('current_board.get_board()', newMatrix); // Updating the matrix in pyodide instance
     setMatrix(newMatrix); // Updating matrix in react useState
   }
 
   async function randomOpponentPlacement() {
-    console.log(generatingMoves)
-
 
       let randRow = await pyodide.runPythonAsync('import random; random.randint(0, len(matrix)-1)');
       let randCol = await pyodide.runPythonAsync('random.randint(0, len(matrix)-1)');
@@ -86,9 +84,9 @@ function Tile({
       await pyodide.globals.set('row', parseInt(randRow));
       await pyodide.globals.set('col', parseInt(randCol));
 
-      const newMatrix = await pyodide.runPythonAsync('script.place_tile(color_int, matrix, row, col)');
+      const newMatrix = await pyodide.runPythonAsync('current_board.place_tile(color_int, row, col)');
 
-      await pyodide.globals.set('matrix', newMatrix); // Updating the matrix in pyodide instance
+      await pyodide.globals.set('current_board.get_board()', newMatrix); // Updating the matrix in pyodide instance
       setMatrix(newMatrix); // Updating matrix in react useState
   }
 

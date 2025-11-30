@@ -38,7 +38,7 @@ function App() {
       await pyodide.loadPackage("numpy");
       await pyodide.globals.set('matrix', matrix);
       await pyodide.globals.set('size', size);
-      await pyodide.runPythonAsync('import script');
+      await pyodide.runPythonAsync('import script; current_board = script.GomokuBoard(matrix)');
       
       console.log("pyodide ready");
       setPyodideReady(true);

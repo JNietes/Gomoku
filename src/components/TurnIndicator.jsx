@@ -19,7 +19,6 @@ function TurnIndicator({
   }
 
   if (!gameRunning) {
-    console.log(currentTurn);
     if (currentTurn == -1) {
       turnString = "Black Won!"
     }

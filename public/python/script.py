@@ -20,38 +20,51 @@ def print_matrix(matrix):
     string += "]\n"
   return string
 
-def place_tile(color_int, matrix, row, col):
-  copy = np.array(matrix)
-  if (matrix[row][col] == 0): 
-    copy[row][col] = color_int
-  return copy.tolist()
+class GomokuBoard(object):
+  def __init__(self, board):
+    self.num_rows = len(board)
+    self.num_columns = len(board[0])
+    self.current_board = board
 
-def detect_winner(color_int, matrix, row, col):
-  size = len(matrix)
-  winner = False
-  matching_stones = 0
-  for i in range(len(win_matrix)):
+  def get_board(self):
+    return self.current_board
+  
+  def set_board(self, board):
+    self.current_board = board
+
+  def place_tile(self, color_int, row, col):
+    copy = np.array(self.current_board)
+    if int(copy[row][col]) == 0:
+      copy[row][col] = int(color_int)
+      self.current_board = copy.tolist()
+    return self.current_board
+
+  def detect_winner(self, color_int, row, col):
+    size = self.num_rows
+    winner = False
     matching_stones = 0
-    for j in range(len(win_matrix[0])):
-      row_delta = win_matrix[i][j][0]
-      col_delta = win_matrix[i][j][1]
-      row_plus_delta = int(row) + int(row_delta)
-      col_plus_delta = int(col) + int(col_delta)
+    for i in range(len(win_matrix)):
+      matching_stones = 0
+      for j in range(len(win_matrix[0])):
+        row_delta = win_matrix[i][j][0]
+        col_delta = win_matrix[i][j][1]
+        row_plus_delta = int(row) + int(row_delta)
+        col_plus_delta = int(col) + int(col_delta)
 
-      if new_index_inside(row, row_delta, size) and new_index_inside(col, col_delta, size):
-        if int(matrix[row_plus_delta][col_plus_delta]) == int(color_int):
-          matching_stones += 1
-        else:
-          matching_stones = 0
-        
-        if matching_stones >= 4:
-          winner = True
-  return winner
+        if self.new_index_inside(row, row_delta, size) and self.new_index_inside(col, col_delta, size):
+          if int(self.current_board[row_plus_delta][col_plus_delta]) == int(color_int):
+            matching_stones += 1
+          else:
+            matching_stones = 0
+          
+          if matching_stones >= 4:
+            winner = True
+    return winner
 
-# Helper for detect_winner
-def new_index_inside(index, delta, size):
-  inside = False
-  new_index = int(index) + int(delta)
-  if (new_index >= 0 and new_index < size):
-    inside = True
-  return inside
+  # Helper for detect_winner
+  def new_index_inside(self, index, delta, size):
+    inside = False
+    new_index = int(index) + int(delta)
+    if (new_index >= 0 and new_index < size):
+      inside = True
+    return inside
