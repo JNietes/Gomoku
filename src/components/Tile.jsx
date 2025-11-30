@@ -44,10 +44,12 @@ function Tile({
 
   async function printBoard() {
     if (!pyodideReady) return;
+    await pyodide.runPythonAsync('current_board.print_board()');
+  }
 
-    console.log("Printing board:");
-    const result = await pyodide.runPythonAsync('script.print_matrix(current_board.get_board())');
-    console.log(result);
+  async function printMoves() {
+    if (!pyodideReady) return;
+    await pyodide.runPythonAsync('current_board.print_moves()');
   }
 
   async function detectWin() {
@@ -115,6 +117,7 @@ function Tile({
         }
         
         await printBoard();
+        await printMoves();
       }
     }
   }
