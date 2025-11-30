@@ -19,6 +19,7 @@ class GomokuBoard(object):
   
   def set_board(self, board):
     self.current_board = board
+    self.size = len(board)
 
   def reset_board(self):
     self.current_board = np.zeros((self.size, self.size))
@@ -39,7 +40,14 @@ class GomokuBoard(object):
   def print_moves(self):
     print(self.placed_stones)
 
-  def place_tile(self, color_int, row, col):
+  def is_legal_move(self, row, col):
+    if row < 0 or col < 0 or row > self.size-1 or col > self.size-1:
+      return False
+    if self.current_board[row][col] != 0:
+      return False
+    return True
+    
+  def place_stone(self, color_int, row, col):
     stone = (color_int, row, col)
     self.placed_stones.append(stone)
     copy = np.array(self.current_board)
@@ -47,6 +55,12 @@ class GomokuBoard(object):
       copy[row][col] = int(color_int)
       self.current_board = copy.tolist()
     return self.current_board
+  
+  def place_stone_randomly(self, color_int):
+    row, col = random.randint(0, self.size-1), random.randint(0, self.size-1)
+    while self.current_board[row][col] != 0:
+      row, col = random.randint(0, self.size-1), random.randint(0, self.size-1)
+    return self.place_stone(color_int, row, col)
 
   def detect_winner(self, color_int, row, col):
     winner = False
@@ -59,7 +73,7 @@ class GomokuBoard(object):
         row_plus_delta = int(row) + int(row_delta)
         col_plus_delta = int(col) + int(col_delta)
 
-        if self.new_index_inside(row, row_delta, self.size) and self.new_index_inside(col, col_delta, self.size):
+        if self.delta_index_inside(row_plus_delta, self.size) and self.delta_index_inside(col_plus_delta, self.size):
           if int(self.current_board[row_plus_delta][col_plus_delta]) == int(color_int):
             matching_stones += 1
           else:
@@ -69,10 +83,8 @@ class GomokuBoard(object):
             winner = True
     return winner
 
-  # Helper for detect_winner
-  def new_index_inside(self, index, delta, size):
-    inside = False
-    new_index = int(index) + int(delta)
-    if (new_index >= 0 and new_index < size):
-      inside = True
-    return inside
+  # Helper for detect_winner. Modified is_legal_move
+  def delta_index_inside(self, delta_index, size):
+    if (delta_index < 0 or delta_index > size-1):
+      return False
+    return True
