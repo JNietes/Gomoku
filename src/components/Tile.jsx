@@ -66,30 +66,20 @@ function Tile({
     await pyodide.globals.set('row', parseInt(row));
     await pyodide.globals.set('col', parseInt(col));
 
-    const newMatrix = await pyodide.runPythonAsync('current_board.place_tile(color_int, row, col)');
+    const newMatrix = await pyodide.runPythonAsync('current_board.place_stone(color_int, row, col)');
 
-    await pyodide.globals.set('current_board.get_board()', newMatrix); // Updating the matrix in pyodide instance
     setMatrix(newMatrix); // Updating matrix in react useState
   }
 
   async function randomOpponentPlacement() {
 
-      let randRow = await pyodide.runPythonAsync('import random; random.randint(0, len(matrix)-1)');
-      let randCol = await pyodide.runPythonAsync('random.randint(0, len(matrix)-1)');
+    await pyodide.globals.set('color_int', parseInt(-currentTurn));
+    await pyodide.globals.set('row', parseInt(row));
+    await pyodide.globals.set('col', parseInt(col));
 
-      while (matrix[randRow][randCol] != 0) {
-        randRow = await pyodide.runPythonAsync('import random; random.randint(0, len(matrix)-1)');
-        randCol = await pyodide.runPythonAsync('random.randint(0, len(matrix)-1)');
-      } 
+    const newMatrix = await pyodide.runPythonAsync('current_board.place_stone_randomly(color_int)');
 
-      await pyodide.globals.set('color_int', parseInt(-currentTurn));
-      await pyodide.globals.set('row', parseInt(randRow));
-      await pyodide.globals.set('col', parseInt(randCol));
-
-      const newMatrix = await pyodide.runPythonAsync('current_board.place_tile(color_int, row, col)');
-
-      await pyodide.globals.set('current_board.get_board()', newMatrix); // Updating the matrix in pyodide instance
-      setMatrix(newMatrix); // Updating matrix in react useState
+    setMatrix(newMatrix); // Updating matrix in react useState
   }
 
   async function handleClick() {
