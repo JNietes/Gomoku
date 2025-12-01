@@ -62,7 +62,9 @@ class GomokuBoard(object):
       row, col = random.randint(0, self.size-1), random.randint(0, self.size-1)
     return self.place_stone(color_int, row, col)
 
-  def detect_winner(self, color_int, row, col):
+  def detect_winner(self):
+    last_stone = self.placed_stones[-1]
+    color_int, row, col = last_stone
     winner = False
     matching_stones = 0
     for i in range(len(win_matrix)):
@@ -88,3 +90,28 @@ class GomokuBoard(object):
     if (delta_index < 0 or delta_index > size-1):
       return False
     return True
+
+  def successors(self):
+    all_stone_indices = [stone_indices[1:] for stone_indices in self.placed_stones]
+
+    radius = 2
+
+    temp = np.array(self.current_board)
+    for stone_index in all_stone_indices:
+      row_start = (stone_index[0]-radius)
+      row_end = (stone_index[0]+radius+1)
+      col_start = (stone_index[1]-radius)
+      col_end = (stone_index[1]+radius+1)
+
+      # A sub matrix with a radius of 2 
+      sub_board = temp[row_start:row_end, col_start:col_end]
+      
+    # Something to get the indices of elements in sub array where their value is 0
+
+    # indexes = [] 
+
+    # successors = np.unique(indexes)
+    # print(successors)
+    print(sub_board)
+
+    pass
