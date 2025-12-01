@@ -55,14 +55,16 @@ function Tile({
   async function detectWin() {
     if (!pyodideReady) return;
 
-    const someoneWon = await pyodide.runPythonAsync('current_board.detect_winner(color_int, row, col)')
+    await pyodide.globals.set('color_int', parseInt());
+
+    const someoneWon = await pyodide.runPythonAsync('current_board.detect_winner()')
     return !!someoneWon;
   }
 
-  async function placeTile() {
+  async function placeStone(colorInt) {
     if (!pyodideReady) return;
     
-    await pyodide.globals.set('color_int', parseInt(currentTurn));
+    await pyodide.globals.set('color_int', parseInt(colorInt));
     await pyodide.globals.set('row', parseInt(row));
     await pyodide.globals.set('col', parseInt(col));
 
@@ -71,11 +73,9 @@ function Tile({
     setMatrix(newMatrix); // Updating matrix in react useState
   }
 
-  async function randomOpponentPlacement() {
+  async function randomlyPlaceStone(colorInt) {
 
-    await pyodide.globals.set('color_int', parseInt(-currentTurn));
-    await pyodide.globals.set('row', parseInt(row));
-    await pyodide.globals.set('col', parseInt(col));
+    await pyodide.globals.set('color_int', parseInt(colorInt));
 
     const newMatrix = await pyodide.runPythonAsync('current_board.place_stone_randomly(color_int)');
 
@@ -83,19 +83,21 @@ function Tile({
   }
 
   async function handleClick() {
+    let colorInt = currentTurn;
     if (gameRunning && pyodideReady) {
       if (matrix[row][col] == 0) {
 
-        await placeTile();
+        await placeStone(colorInt);
         
         const playerWon = await detectWin();
+        colorInt = -colorInt
         if (playerWon) {
           setGameRunning(false)
           return; // To not place opponent tile after game is won
         }
 
         if (generatingMoves) {
-          await randomOpponentPlacement();
+          await randomlyPlaceStone(colorInt);
 
           const opponentWon = await detectWin();
           if (opponentWon) {
