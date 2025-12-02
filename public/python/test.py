@@ -30,7 +30,14 @@ current_board.place_stone(1, 6, 7)
 current_board.place_stone(1, 6, 8)
 current_board.place_stone(1, 6, 9)
 print(current_board.detect_winner())
-print(current_board.successors())
 
-current_board.print_board()
+moves = [successor[0] for successor in current_board.successors(-1)]
+boards = [successor[1] for successor in current_board.successors(-1)]
+
+for i in range(len(moves)):
+  print(moves[i])
+  boards[i].print_moves()
+  boards[i].print_board()
+  
 current_board.print_moves()
+current_board.print_board()

@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import copy
 
 # Represents all pieces withing a 4 tile star radius
 win_matrix = [
@@ -14,12 +15,23 @@ class GomokuBoard(object):
     self.current_board = np.zeros((size, size))
     self.placed_stones = []
 
+  def copy(self):
+    new_game = GomokuBoard(self.size)
+    new_game.set_board(copy.deepcopy(self.current_board))
+    new_game.set_placed_stones(copy.deepcopy(self.placed_stones))
+    return new_game
+
   def get_board(self):
     return self.current_board
   
   def set_board(self, board):
     self.current_board = board
-    self.size = len(board)
+
+  def get_placed_stones(self):
+    return self.placed_stones
+  
+  def set_placed_stones(self, list):
+    self.placed_stones = list
 
   def reset_board(self):
     self.current_board = np.zeros((self.size, self.size))
@@ -121,3 +133,9 @@ class GomokuBoard(object):
     original_sub_indices = set(original_sub_indices)
 
     return list(original_sub_indices)
+  
+  def successors(self, color_int):
+    for move in self.successor_indexes():
+      new_board = self.copy()
+      new_board.place_stone(color_int, move[0], move[1])
+      yield move, new_board
