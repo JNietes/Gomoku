@@ -9,7 +9,8 @@ function Board({
   pyodideReady,
   gameRunning,
   setGameRunning,
-  generatingMoves
+  generatingRandMoves,
+  generatingSuccMoves
   }){
   
   return (
@@ -31,7 +32,8 @@ function Board({
                 pyodideReady={pyodideReady}
                 gameRunning={gameRunning}
                 setGameRunning={setGameRunning}
-                generatingMoves={generatingMoves}
+                generatingRandMoves={generatingRandMoves}
+                generatingSuccMoves={generatingSuccMoves}
               />
             ))}
           </div>

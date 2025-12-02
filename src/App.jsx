@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import {Board, TurnIndicator, ResetButton, ToggleMoveGenerator} from "./components";
+import {Board, TurnIndicator, ResetButton, ToggleRandMovesButton, ToggleRandSuccButton} from "./components";
 import { loadPyodide } from 'pyodide';
 import "./App.css";
 
@@ -8,7 +8,9 @@ function App() {
   const [currentTurn, setCurrentTurn] = useState(0);
   const [size, setSize] = useState(15);
   const [pyodideReady, setPyodideReady] = useState(false);
-  const [generatingMoves, setGeneratingMoves] = useState(false);
+
+  const [generatingRandMoves, setGeneratingRandMoves] = useState(false);
+  const [generatingSuccMoves, setGeneratingSuccMoves] = useState(false);
 
   // Stores the stones placed on the board.
   // 0: none; -1: black; 1: white;
@@ -65,9 +67,15 @@ function App() {
               gameRunning={gameRunning} 
               setGameRunning={setGameRunning} 
               setCurrentTurn={setCurrentTurn}/>
-            <ToggleMoveGenerator
-              generatingMoves={generatingMoves}
-              setGeneratingMoves={setGeneratingMoves}
+            <ToggleRandMovesButton
+              generatingRandMoves={generatingRandMoves}
+              generatingSuccMoves={generatingSuccMoves}
+              setGeneratingRandMoves={setGeneratingRandMoves}
+            />
+            <ToggleRandSuccButton
+              generatingRandMoves={generatingRandMoves}
+              generatingSuccMoves={generatingSuccMoves}
+              setGeneratingSuccMoves={setGeneratingSuccMoves}
             />
           </div>  
         <Board 
@@ -79,7 +87,8 @@ function App() {
           pyodideReady={pyodideReady}
           gameRunning={gameRunning}
           setGameRunning={setGameRunning}
-          generatingMoves={generatingMoves}
+          generatingRandMoves={generatingRandMoves}
+          generatingSuccMoves={generatingSuccMoves}
           />
       </div>
       

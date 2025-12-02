@@ -55,12 +55,16 @@ class GomokuBoard(object):
       copy[row][col] = int(color_int)
       self.current_board = copy.tolist()
     return self.current_board
-  
+    
   def place_stone_randomly(self, color_int):
     row, col = random.randint(0, self.size-1), random.randint(0, self.size-1)
     while self.current_board[row][col] != 0:
       row, col = random.randint(0, self.size-1), random.randint(0, self.size-1)
     return self.place_stone(color_int, row, col)
+  
+  def place_stone_within_successor(self, color_int):
+    index = random.choice(self.successor_indexes())
+    return self.place_stone(color_int, index[0], index[1])
 
   def detect_winner(self):
     last_stone = self.placed_stones[-1]
@@ -91,27 +95,29 @@ class GomokuBoard(object):
       return False
     return True
 
-  def successors(self):
+  def successor_indexes(self):
     all_stone_indices = [stone_indices[1:] for stone_indices in self.placed_stones]
 
-    radius = 2
-
-    temp = np.array(self.current_board)
+    radius = 1
+    original_sub_indices = []
     for stone_index in all_stone_indices:
-      row_start = (stone_index[0]-radius)
-      row_end = (stone_index[0]+radius+1)
-      col_start = (stone_index[1]-radius)
-      col_end = (stone_index[1]+radius+1)
 
-      # A sub matrix with a radius of 2 
-      sub_board = temp[row_start:row_end, col_start:col_end]
+      # Use min and max to ensure indexes are within size
+      row_start = max((stone_index[0]-radius), 0)
+      row_end = min((stone_index[0]+radius+1), self.size)
+      col_start = max((stone_index[1]-radius), 0)
+      col_end = min((stone_index[1]+radius+1), self.size)
+
+      original_row_indices = np.arange(row_start, row_end).tolist()
+      original_col_indices = np.arange(col_start, col_end).tolist()
       
-    # Something to get the indices of elements in sub array where their value is 0
+      for row_index in original_row_indices:
+        for col_index in original_col_indices:
 
-    # indexes = [] 
+          if self.current_board[row_index][col_index] == 0:
+            index = (row_index, col_index)
+            original_sub_indices.append(index)
+          
+    original_sub_indices = set(original_sub_indices)
 
-    # successors = np.unique(indexes)
-    # print(successors)
-    print(sub_board)
-
-    pass
+    return list(original_sub_indices)

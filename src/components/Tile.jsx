@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 function Tile({
   index,
   element,
@@ -10,7 +8,8 @@ function Tile({
   pyodideReady,
   gameRunning,
   setGameRunning,
-  generatingMoves
+  generatingRandMoves,
+  generatingSuccMoves
   }){
     
   // These are the coordinates of a node that is clicked
@@ -82,6 +81,15 @@ function Tile({
     setMatrix(newMatrix); // Updating matrix in react useState
   }
 
+  async function placeSuccMove(colorInt) {
+
+    await pyodide.globals.set('color_int', parseInt(colorInt));
+
+    const newMatrix = await pyodide.runPythonAsync('current_board.place_stone_within_successor(color_int)');
+
+    setMatrix(newMatrix); // Updating matrix in react useState
+  }
+
   async function handleClick() {
     let colorInt = currentTurn;
     if (gameRunning && pyodideReady) {
@@ -96,7 +104,7 @@ function Tile({
           return; // To not place opponent tile after game is won
         }
 
-        if (generatingMoves) {
+        if (generatingRandMoves) {
           await randomlyPlaceStone(colorInt);
 
           const opponentWon = await detectWin();
@@ -104,7 +112,18 @@ function Tile({
             setCurrentTurn(-currentTurn);
             setGameRunning(false)
           }
-        } else { // Swap turns when not generating moves
+        }
+        else if (generatingSuccMoves) {
+          await placeSuccMove(colorInt)
+
+          const opponentWon = await detectWin();
+          if (opponentWon) {
+            setCurrentTurn(-currentTurn);
+            setGameRunning(false)
+          }
+        }
+        
+        else { // Swap turns when not generating moves
           setCurrentTurn(-currentTurn);
         }
         
