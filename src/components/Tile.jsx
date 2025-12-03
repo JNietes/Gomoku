@@ -127,7 +127,7 @@ function Tile({
           setCurrentTurn(-currentTurn);
         }
         
-        await printBoard();
+        //await printBoard();
         await printMoves();
       }
     }
