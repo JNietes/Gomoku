@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import copy
+import math
 
 # Represents all pieces withing a 4 tile star radius
 win_matrix = [
@@ -10,7 +11,8 @@ win_matrix = [
   [[0, -4], [0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3], [0, 4]]]     
 
 black_patterns = [
-  (50, np.array([0, -1, -1, -1, -1, 0])),
+  (1000, np.array([-1, -1, -1, -1, -1])),
+  (500, np.array([0, -1, -1, -1, -1, 0])),
   (20, np.array([1, -1, -1, -1, -1, 0])),
   (10, np.array([0, 0, -1, -1, -1, 0, 0])),
   (5,  np.array([1, 0, -1, -1, -1, 0, 0])),
@@ -21,7 +23,8 @@ black_patterns = [
 ]
 
 white_patterns = [
-  (50, np.array([0, 1, 1, 1, 1, 0])),
+  (1000, np.array([1, 1, 1, 1, 1])),
+  (500, np.array([0, 1, 1, 1, 1, 0])),
   (20, np.array([-1, 1, 1, 1, 1, 0])),
   (10, np.array([0, 0, 1, 1, 1, 0, 0])),
   (5,  np.array([-1, 0, 1, 1, 1, 0, 0])),
@@ -89,7 +92,6 @@ class GomokuBoard(object):
       copy[row][col] = int(color_int)
       self.current_board = copy.tolist()
 
-    print(f"Board value for {color_int}: {self.get_board_value(color_int)}")
     return self.current_board
     
   def place_stone_randomly(self, color_int):
@@ -101,9 +103,15 @@ class GomokuBoard(object):
   def place_stone_within_successor(self, color_int):
     index = random.choice(self.successor_indexes())
     return self.place_stone(color_int, index[0], index[1])
+  
+  def place_best_move(self, color_int):
+    best_move = self.get_best_move(color_int, 2)
+    print(f"Board value for {color_int}: {self.get_board_value(color_int)}")
+    return self.place_stone(color_int, best_move[0][0], best_move[0][1])
 
   def detect_winner(self):
     last_stone = self.placed_stones[-1]
+
     color_int, row, col = last_stone
     winner = False
     matching_stones = 0
@@ -164,12 +172,7 @@ class GomokuBoard(object):
       new_board.place_stone(color_int, move[0], move[1])
       yield move, new_board
 
-  def get_board_value(self, color_int):
-    if color_int == -1:
-      patterns = black_patterns
-    else:
-      patterns = white_patterns
-
+  def evaluate_patterns(self, patterns):
     board_value = 0
     temp = np.array(self.current_board)
     for value, pattern in patterns:
@@ -178,7 +181,7 @@ class GomokuBoard(object):
       for row in range(len(self.current_board)):
         start_index = 0
       
-        while start_index <= self.size-start_index:
+        while start_index <= self.size-len(pattern):
           sub_list = temp[row, start_index: start_index + len(pattern)]
 
           if (pattern == sub_list).all():
@@ -191,7 +194,7 @@ class GomokuBoard(object):
       for col in range(len(self.current_board[0])):
         
         start_index = 0
-        while start_index <= self.size-start_index:
+        while start_index <= self.size-len(pattern):
           sub_list = temp[start_index: start_index + len(pattern), col]
 
           if (pattern == sub_list).all():
@@ -228,3 +231,63 @@ class GomokuBoard(object):
           start_index+=1
 
     return board_value
+
+  def get_board_value(self, color_int):
+    if color_int == -1:
+      player_eval = self.evaluate_patterns(black_patterns)
+      opponent_eval = self.evaluate_patterns(white_patterns)
+      
+    else:
+      player_eval = self.evaluate_patterns(white_patterns)
+      opponent_eval = self.evaluate_patterns(black_patterns)
+      # if player_eval == 500:
+      #   print("player evall == 500")
+
+    return player_eval-opponent_eval
+  
+  def get_best_move(self, color_int, limit):
+    alpha = -math.inf
+    beta = math.inf
+    return self.max_value(color_int, limit, alpha, beta)
+
+  def max_value(self, color_int, d, alpha, beta):
+    if d == 0 or self.detect_winner():
+      return None, self.get_board_value(color_int), 1
+
+    best_move = None
+    best_val = -math.inf
+    total_leaves = 0
+
+    for move, child in self.successors(color_int):
+      _, eval, leaves = child.min_value(color_int, d - 1, alpha, beta)
+      total_leaves += leaves
+
+      if eval > best_val:
+        best_val, best_move = eval, move
+      alpha = max(alpha, eval)
+
+      if beta <= alpha:
+        break
+
+    return best_move, best_val, total_leaves
+
+  def min_value(self, color_int, d, alpha, beta):
+    if d == 0 or self.detect_winner():
+      return None, self.get_board_value(color_int), 1
+
+    best_move = None
+    best_val = math.inf
+    total_leaves = 0
+
+    for move, child in self.successors(-color_int):
+      _, eval, leaves = child.max_value(color_int, d - 1, alpha, beta)
+      total_leaves += leaves
+
+      if eval < best_val:
+        best_val, best_move = eval, move
+      beta = min(beta, eval)
+
+      if beta <= alpha:
+        break
+
+    return best_move, best_val, total_leaves
