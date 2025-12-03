@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import copy
 
 # Represents all pieces withing a 4 tile star radius
 win_matrix = [
@@ -8,18 +9,51 @@ win_matrix = [
   [[-4, 0], [-3, 0], [-2, 0], [-1, 0], [1, 0], [2, 0], [3, 0], [4, 0]],     
   [[0, -4], [0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3], [0, 4]]]     
 
+black_patterns = [
+  (50, np.array([0, -1, -1, -1, -1, 0])),
+  (20, np.array([1, -1, -1, -1, -1, 0])),
+  (10, np.array([0, 0, -1, -1, -1, 0, 0])),
+  (5,  np.array([1, 0, -1, -1, -1, 0, 0])),
+  (5,  np.array([0, 0, -1, -1, -1, 0, 1])),
+  (5,  np.array([0, -1, 0, -1, -1, 0])),
+  (5,  np.array([0, -1, -1, 0, -1, 0])),
+  (2,  np.array([0, -1, -1, 0]))
+]
+
+white_patterns = [
+  (50, np.array([0, 1, 1, 1, 1, 0])),
+  (20, np.array([-1, 1, 1, 1, 1, 0])),
+  (10, np.array([0, 0, 1, 1, 1, 0, 0])),
+  (5,  np.array([-1, 0, 1, 1, 1, 0, 0])),
+  (5,  np.array([0, 0, 1, 1, 1, 0, -1])),
+  (5,  np.array([0, 1, 0, 1, 1, 0])),
+  (5,  np.array([0, 1, 1, 0, 1, 0])),
+  (2,  np.array([0, 1, 1, 0]))
+]
+
 class GomokuBoard(object):
   def __init__(self, size):
     self.size = size
     self.current_board = np.zeros((size, size))
     self.placed_stones = []
 
+  def copy(self):
+    new_game = GomokuBoard(self.size)
+    new_game.set_board(copy.deepcopy(self.current_board))
+    new_game.set_placed_stones(copy.deepcopy(self.placed_stones))
+    return new_game
+
   def get_board(self):
     return self.current_board
   
   def set_board(self, board):
     self.current_board = board
-    self.size = len(board)
+
+  def get_placed_stones(self):
+    return self.placed_stones
+  
+  def set_placed_stones(self, list):
+    self.placed_stones = list
 
   def reset_board(self):
     self.current_board = np.zeros((self.size, self.size))
@@ -38,7 +72,7 @@ class GomokuBoard(object):
     print(string)
 
   def print_moves(self):
-    print(self.placed_stones)
+    print(f"Stones Placed: {self.placed_stones}")
 
   def is_legal_move(self, row, col):
     if row < 0 or col < 0 or row > self.size-1 or col > self.size-1:
@@ -54,6 +88,8 @@ class GomokuBoard(object):
     if int(copy[row][col]) == 0:
       copy[row][col] = int(color_int)
       self.current_board = copy.tolist()
+
+    print(f"Board value for {color_int}: {self.get_board_value(color_int)}")
     return self.current_board
     
   def place_stone_randomly(self, color_int):
@@ -121,3 +157,74 @@ class GomokuBoard(object):
     original_sub_indices = set(original_sub_indices)
 
     return list(original_sub_indices)
+  
+  def successors(self, color_int):
+    for move in self.successor_indexes():
+      new_board = self.copy()
+      new_board.place_stone(color_int, move[0], move[1])
+      yield move, new_board
+
+  def get_board_value(self, color_int):
+    if color_int == -1:
+      patterns = black_patterns
+    else:
+      patterns = white_patterns
+
+    board_value = 0
+    temp = np.array(self.current_board)
+    for value, pattern in patterns:
+
+      # Checks for pattern horizontally
+      for row in range(len(self.current_board)):
+        start_index = 0
+      
+        while start_index <= self.size-start_index:
+          sub_list = temp[row, start_index: start_index + len(pattern)]
+
+          if (pattern == sub_list).all():
+            board_value += value
+
+          start_index+=1
+
+      # Checks for pattern vertially
+      
+      for col in range(len(self.current_board[0])):
+        
+        start_index = 0
+        while start_index <= self.size-start_index:
+          sub_list = temp[start_index: start_index + len(pattern), col]
+
+          if (pattern == sub_list).all():
+            board_value += value
+
+          start_index+=1
+
+      # Checks for pattern in main diagonal
+      rows, cols = self.size, self.size
+      for i in range(-(rows - 1), cols):
+        diagonal = temp.diagonal(offset=i)
+        
+        start_index = 0
+        while start_index <= len(diagonal) - len(pattern):
+          sub_list = diagonal[start_index: start_index + len(pattern)]
+
+          if len(sub_list) >= len(pattern) and (pattern == sub_list).all():
+            board_value += value
+
+          start_index+=1
+
+      # Checks for pattern in anti diagonal
+      flipped_board = np.flipud(temp)
+      for i in range(-(rows - 1), cols):
+        anti_diagonal = flipped_board.diagonal(offset=i)
+        
+        start_index = 0
+        while start_index <= len(anti_diagonal) - len(pattern):
+          sub_list = anti_diagonal[start_index: start_index + len(pattern)]
+
+          if (pattern == sub_list).all():
+            board_value += value
+
+          start_index+=1
+
+    return board_value
