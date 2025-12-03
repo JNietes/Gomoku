@@ -85,7 +85,7 @@ function Tile({
 
     await pyodide.globals.set('color_int', parseInt(colorInt));
 
-    const newMatrix = await pyodide.runPythonAsync('current_board.place_stone_within_successor(color_int)');
+    const newMatrix = await pyodide.runPythonAsync('current_board.place_best_move(color_int)');
 
     setMatrix(newMatrix); // Updating matrix in react useState
   }

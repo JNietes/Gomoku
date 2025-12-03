@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import {Board, TurnIndicator, ResetButton, ToggleRandMovesButton, ToggleRandSuccButton} from "./components";
+import {Board, TurnIndicator, ResetButton, ToggleRandMovesButton, ToggleBestMoveButton} from "./components";
 import { loadPyodide } from 'pyodide';
 import "./App.css";
 
@@ -72,7 +72,7 @@ function App() {
               generatingSuccMoves={generatingSuccMoves}
               setGeneratingRandMoves={setGeneratingRandMoves}
             />
-            <ToggleRandSuccButton
+            <ToggleBestMoveButton
               generatingRandMoves={generatingRandMoves}
               generatingSuccMoves={generatingSuccMoves}
               setGeneratingSuccMoves={setGeneratingSuccMoves}

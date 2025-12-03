@@ -1,4 +1,4 @@
-function ToggleRandSuccButton({
+function ToggleBestMoveButton({
   generatingRandMoves,
   generatingSuccMoves,
   setGeneratingSuccMoves
@@ -15,9 +15,9 @@ function ToggleRandSuccButton({
       className={`toggle-button ${generatingSuccMoves ? 'active' : ''}`}
       onClick={handleClick}
     >    
-      Opponent Adjacent Move
+      Opponent Best Move
     </button>
   )
 }
 
-export default ToggleRandSuccButton;
+export default ToggleBestMoveButton;
